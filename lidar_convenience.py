@@ -1,5 +1,8 @@
 import numpy as np
 class LidarTools(object):
+    '''
+    Collection of helpers for processing LiDAR point cloud.
+    '''
     def get_bev(self, points, resolution=0.1, pixel_values=None, generate_img=None):  
         '''
         Returns bird's eye view of a LiDAR point cloud for a given resolution.
