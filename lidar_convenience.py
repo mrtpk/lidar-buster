@@ -30,4 +30,46 @@ class LidarTools(object):
             img[-y_img, x_img] = pixel_values
             return img
         
-        return generate_img(img_height, img_width, -y_img, x_img, pixel_values)    
+        return generate_img(img_height, img_width, -y_img, x_img, pixel_values)
+    
+    def filter_points(self, points, side_range=None, fwd_range=None, \
+                  height_range=None, horizontal_fov=None, vertical_fov=None):
+        '''
+        Returns filtered points based on side, forward and height range, and, horizontal and vertical field of view.
+        '''
+        x = points[:, 0]
+        y = points[:, 1]
+        z = points[:, 2]
+        r = points[:, 3]
+        
+        mask = np.full_like(x, True)
+        
+        if side_range is not None:
+            side_mask = np.logical_and((y > -side_range[1]), (y < -side_range[0]))
+            mask = np.logical_and(mask, side_mask)
+
+        if fwd_range is not None:
+            fwd_mask = np.logical_and((x > fwd_range[0]), (x < fwd_range[1]))
+            mask = np.logical_and(mask, fwd_mask)
+
+        if height_range is not None:
+            height_mask = np.logical_and((z > height_range[0]), (z < height_range[1]))
+            mask = np.logical_and(mask, height_mask)
+            
+        if horizontal_fov is not None:
+            horizontal_fov_mask = np.logical_and(np.arctan2(y, x) > (-horizontal_fov[1] * np.pi / 180), \
+                            np.arctan2(y, x) < (-horizontal_fov[0] * np.pi / 180))
+            mask = np.logical_and(mask, horizontal_fov_mask)
+        
+        if vertical_fov is not None:
+            distance = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+            vertical_fov_mask = np.logical_and(np.arctan2(z,distance) < (vertical_fov[1] * np.pi / 180), \
+                            np.arctan2(z,distance) > (vertical_fov[0] * np.pi / 180))
+            mask = np.logical_and(mask, vertical_fov_mask)
+
+        indices = np.argwhere(mask).flatten()
+        x_filtered = x[indices]
+        y_filtered = y[indices]
+        z_filtered = z[indices]
+        r_filtered = r[indices]
+        return np.vstack([x_filtered, y_filtered, z_filtered, r_filtered]).T    
