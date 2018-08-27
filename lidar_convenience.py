@@ -71,8 +71,4 @@ class LidarTools(object):
             mask = np.logical_and(mask, vertical_fov_mask)
 
         indices = np.argwhere(mask).flatten()
-        x_filtered = x[indices]
-        y_filtered = y[indices]
-        z_filtered = z[indices]
-        r_filtered = r[indices]
-        return np.vstack([x_filtered, y_filtered, z_filtered, r_filtered]).T    
+        return points[indices, :]    

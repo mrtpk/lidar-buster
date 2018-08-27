@@ -38,7 +38,10 @@ class kittiRoad(object):
         rectification = calib_data['R0_rect'].reshape(3, 3)
         projection = calib_data['P2'].reshape(3, 4)
 
-        _points = copy.deepcopy(points.T)
+        _x = points[:,0]
+        x_mask = _x >= 0.0
+        
+        _points = copy.deepcopy(points.T) # np.vstack([_x[x_mask], _y[x_mask], _z[x_mask], _r[x_mask]])
 
         # Convert filtered velodyne coordinates(X_v, Y_v, Z_v) to camera coordinates(X_c, Y_c, Z_c) 
         for i in range(_points.shape[1]):
@@ -62,6 +65,7 @@ class kittiRoad(object):
         if img is None:
             return x, y
         selector = self.get_projection_mappings_selector(pixel_mappings=_points, img=img)
+        selector = np.logical_and(x_mask, selector)
         if return_selector:
             return x[selector], y[selector], selector
         return x[selector], y[selector]
