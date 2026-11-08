@@ -45,7 +45,8 @@ class kittiRoad(object):
 
         # Convert filtered velodyne coordinates(X_v, Y_v, Z_v) to camera coordinates(X_c, Y_c, Z_c) 
         for i in range(_points.shape[1]):
-            _points[:3,i] = np.matmul(transformation, _points[:,i]) # only x, y, z are changed.
+            # Homogeneous coordinates (x, y, z, 1). Row 3 holds reflectance, so it cannot be used as w.
+            _points[:3,i] = np.matmul(transformation, np.append(_points[:3,i], 1.0))
 
         # Rectification
         _points = np.delete(_points, 3, axis=0) # we don't need r amymore
@@ -53,9 +54,9 @@ class kittiRoad(object):
             _points[:,i] = np.matmul(rectification, _points[:,i])
 
         # Convert camera coordinates(X_c, Y_c, Z_c) image(pixel) coordinates(x,y)
-        projection = projection[:3, :3]
+        # Use the full 3x4 P2: its 4th column is the offset of camera 2 from the reference camera.
         for i in range(_points.shape[1]):
-            _points[:,i] = np.matmul(projection, _points[:,i]) 
+            _points[:,i] = np.matmul(projection, np.append(_points[:,i], 1.0))
         # Normalize
         _points = _points[::]/_points[::][2]
         _points = np.delete(_points, 2, axis=0)

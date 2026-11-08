@@ -14,8 +14,8 @@ class LidarTools(object):
         y = points[:, 1]
         z = points[:, 2]
         
-        x_range = -1 * np.ceil(y.max()).astype(np.int), ((y.min()/np.abs(y.min())) * np.floor(y.min())).astype(np.int)
-        y_range = np.floor(x.min()).astype(np.int), np.ceil(x.max()).astype(np.int)
+        x_range = -1 * np.ceil(y.max()).astype(int), ((y.min()/np.abs(y.min())) * np.floor(y.min())).astype(int)
+        y_range = np.floor(x.min()).astype(int), np.ceil(x.max()).astype(int)
 
         # Create mapping from a 3D point to a pixel based on resolution
         # floor() used to prevent issues with -ve vals rounding upwards causing index out bound error
